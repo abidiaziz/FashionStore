@@ -5,12 +5,12 @@
   "main": "index.html",
   "scripts": {
     "start": "npx http-server -p 8080 -c-1",
-    "lint": "eslint scripts/cart.js tests/",
-    "lint:fix": "eslint scripts/cart.js tests/ --fix",
-    "test": "jest --coverage",
-    "test:watch": "jest --watch",
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "lint": "npx eslint scripts/cart.js tests/",
+    "lint:fix": "npx eslint scripts/cart.js tests/ --fix",
+    "test": "npx jest --coverage",
+    "test:watch": "npx jest --watch",
+    "cypress:open": "npx cypress open",
+    "cypress:run": "npx cypress run"
   },
   "keywords": [
     "ecommerce",
