@@ -13,15 +13,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+
       - name: Install dependencies
-        run: npm install
+        run: npm install --include=dev
+
+      - name: Show installed binaries (debug)
+        run: ls -la node_modules/.bin/ | grep -E "eslint|jest|cypress" || true
+
       - name: Run ESLint
-        run: npm run lint
+        run: ./node_modules/.bin/eslint scripts/cart.js tests/
 
   # ─── 2. Unit tests (Jest) ───────────────────────────────────
   test-unit:
@@ -30,16 +35,20 @@ jobs:
     needs: lint
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+
       - name: Install dependencies
-        run: npm install
+        run: npm install --include=dev
+
       - name: Run Jest with coverage
-        run: npm test
+        run: ./node_modules/.bin/jest --coverage
+
       - name: Upload coverage report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
@@ -52,18 +61,33 @@ jobs:
     needs: lint
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-      - name: Cypress run
-        uses: cypress-io/github-action@v6
-        with:
-          start: npm start
-          wait-on: 'http://localhost:8080'
-          wait-on-timeout: 60
-          browser: chrome
+
+      - name: Install dependencies
+        run: npm install --include=dev
+
+      - name: Start local server in background
+        run: ./node_modules/.bin/http-server -p 8080 -c-1 &
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if curl -s -o /dev/null http://localhost:8080/index.html; then
+              echo "Server is up"
+              exit 0
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 1
+          done
+          echo "Server did not start in time"
+          exit 1
+
+      - name: Run Cypress tests
+        run: ./node_modules/.bin/cypress run --browser chrome
 
   # ─── 4. Build Docker image ──────────────────────────────────
   build-docker:
@@ -72,10 +96,13 @@ jobs:
     needs: [test-unit, test-e2e]
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Build image
         run: docker build -t fashionstore:${{ github.sha }} -t fashionstore:latest .
+
       - name: Test image runs
         run: |
           docker run -d -p 8080:80 --name test-container fashionstore:latest
@@ -98,12 +125,15 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
