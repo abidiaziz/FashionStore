@@ -1,0 +1,8 @@
+.git
+.github
+node_modules
+coverage
+cypress/videos
+cypress/screenshots
+*.log
+.DS_Store

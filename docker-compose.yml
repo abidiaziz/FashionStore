@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # ─── Web app ──────────────────────────────
+  fashionstore:
+    build: .
+    image: fashionstore:latest
+    container_name: fashionstore-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    networks:
+      - monitoring
+
+  # ─── Blackbox exporter (probes URLs) ──────
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: fashionstore-blackbox
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./monitoring/blackbox.yml:/etc/blackbox_exporter/config.yml
+    command:
+      - '--config.file=/etc/blackbox_exporter/config.yml'
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  # ─── Prometheus (metrics collector) ───────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: fashionstore-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    restart: unless-stopped
+    depends_on:
+      - blackbox-exporter
+      - fashionstore
+    networks:
+      - monitoring
+
+  # ─── Grafana (visualization) ──────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: fashionstore-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring
+
+volumes:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  monitoring:
+    driver: bridge

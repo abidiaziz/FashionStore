@@ -1,0 +1,29 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # ─── Auto-monitoring of Prometheus itself ───
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ─── Probe the FashionStore site via blackbox_exporter ───
+  - job_name: 'fashionstore-blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://fashionstore:80/index.html
+          - http://fashionstore:80/login.html
+          - http://fashionstore:80/product.html
+          - http://fashionstore:80/category.html
+          - http://fashionstore:80/faq.html
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
