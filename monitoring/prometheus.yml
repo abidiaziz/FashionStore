@@ -1,16 +1,19 @@
+# Prometheus checks the website every 15 seconds
 global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'fashionstore-blackbox'
+  - job_name: 'fashionstore'
     metrics_path: /probe
     params:
       module: [http_2xx]
     static_configs:
       - targets:
           - http://fashionstore:80/index.html
-          - http://fashionstore:80/login.html
+          - http://fashionstore:80/category.html
           - http://fashionstore:80/product.html
+
+    # Tell Prometheus to send the URL above to blackbox-exporter
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
