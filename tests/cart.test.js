@@ -1,5 +1,5 @@
 // Unit tests for the cart functions (Jest).
-const cart = require('../scripts/cart');
+const cart = require('../public/scripts/cart');
 
 describe('Cart basics', () => {
   test('createCart returns an empty cart', () => {

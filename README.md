@@ -7,12 +7,14 @@ CI/CD, tests, Docker et monitoring.
 
 ```
 ecomerseSite/
-├── *.html                    pages statiques du site
-├── scripts/
-│   ├── cart.js               logique du panier (ajouté)
-│   ├── cart-ui.js            relie cart.js à la page (ajouté)
-│   └── script*.js            scripts UI d'origine
-├── styles/                   fichiers CSS
+├── public/                   site web (déployé sur GitHub Pages)
+│   ├── *.html                pages statiques
+│   ├── scripts/
+│   │   ├── cart.js           logique du panier (ajouté)
+│   │   ├── cart-ui.js        relie cart.js à la page (ajouté)
+│   │   └── script*.js        scripts UI d'origine
+│   ├── styles/               fichiers CSS
+│   ├── images/, fonts/, slick/, videos/
 ├── tests/
 │   └── cart.test.js          tests unitaires Jest
 ├── cypress/e2e/

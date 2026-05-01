@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "FashionStore E-commerce - DevOps project",
   "scripts": {
-    "start": "http-server -p 8080 -c-1",
-    "lint": "eslint scripts/cart.js scripts/cart-ui.js tests/",
+    "start": "http-server public -p 8080 -c-1",
+    "lint": "eslint public/scripts/cart.js public/scripts/cart-ui.js tests/",
     "test": "jest",
     "cypress:run": "cypress run --browser electron"
   },

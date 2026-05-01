@@ -1,7 +1,7 @@
 // ESLint config (v9+ flat config)
 module.exports = [
   {
-    files: ['scripts/cart.js', 'scripts/cart-ui.js', 'tests/**/*.js'],
+    files: ['public/scripts/cart.js', 'public/scripts/cart-ui.js', 'tests/**/*.js'],
     languageOptions: {
       ecmaVersion: 2021,
       sourceType: 'commonjs',
@@ -32,10 +32,10 @@ module.exports = [
   },
   {
     ignores: [
-      'scripts/script.js',
-      'scripts/script1.js',
-      'scripts/script-category.js',
-      'scripts/script-product.js'
+      'public/scripts/script.js',
+      'public/scripts/script1.js',
+      'public/scripts/script-category.js',
+      'public/scripts/script-product.js'
     ]
   }
 ];
