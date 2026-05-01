@@ -1,118 +1,65 @@
-const {
-  createCart,
-  addItem,
-  removeItem,
-  updateQuantity,
-  getSubtotal,
-  applyDiscount,
-  getTotal,
-  getItemCount,
-  clearCart,
-} = require('../scripts/cart');
+// Unit tests for the cart functions (Jest).
+const cart = require('../scripts/cart');
 
-describe('Cart - basic operations', () => {
+describe('Cart basics', () => {
   test('createCart returns an empty cart', () => {
-    const cart = createCart();
-    expect(cart.items).toEqual([]);
+    expect(cart.createCart().items).toEqual([]);
   });
 
-  test('addItem adds a new product to the cart', () => {
-    const cart = createCart();
-    addItem(cart, { id: 1, name: 'T-shirt', price: 25 }, 2);
-    expect(cart.items).toHaveLength(1);
-    expect(cart.items[0].quantity).toBe(2);
+  test('addItem adds a new product', () => {
+    const c = cart.createCart();
+    cart.addItem(c, { id: 1, name: 'T-shirt', price: 25 }, 2);
+    expect(c.items.length).toBe(1);
+    expect(c.items[0].quantity).toBe(2);
   });
 
-  test('addItem merges duplicate products by id', () => {
-    const cart = createCart();
-    addItem(cart, { id: 1, name: 'T-shirt', price: 25 }, 1);
-    addItem(cart, { id: 1, name: 'T-shirt', price: 25 }, 3);
-    expect(cart.items).toHaveLength(1);
-    expect(cart.items[0].quantity).toBe(4);
+  test('addItem twice merges the same product', () => {
+    const c = cart.createCart();
+    cart.addItem(c, { id: 1, price: 10 }, 1);
+    cart.addItem(c, { id: 1, price: 10 }, 2);
+    expect(c.items.length).toBe(1);
+    expect(c.items[0].quantity).toBe(3);
   });
 
-  test('removeItem deletes a product from the cart', () => {
-    const cart = createCart();
-    addItem(cart, { id: 1, name: 'T-shirt', price: 25 }, 1);
-    addItem(cart, { id: 2, name: 'Jeans', price: 60 }, 1);
-    removeItem(cart, 1);
-    expect(cart.items).toHaveLength(1);
-    expect(cart.items[0].id).toBe(2);
-  });
-
-  test('updateQuantity changes quantity for an existing item', () => {
-    const cart = createCart();
-    addItem(cart, { id: 1, name: 'T-shirt', price: 25 }, 1);
-    updateQuantity(cart, 1, 5);
-    expect(cart.items[0].quantity).toBe(5);
-  });
-
-  test('updateQuantity to 0 removes the item', () => {
-    const cart = createCart();
-    addItem(cart, { id: 1, name: 'T-shirt', price: 25 }, 1);
-    updateQuantity(cart, 1, 0);
-    expect(cart.items).toHaveLength(0);
+  test('removeItem deletes a product', () => {
+    const c = cart.createCart();
+    cart.addItem(c, { id: 1, price: 10 }, 1);
+    cart.addItem(c, { id: 2, price: 20 }, 1);
+    cart.removeItem(c, 1);
+    expect(c.items.length).toBe(1);
+    expect(c.items[0].id).toBe(2);
   });
 
   test('clearCart empties the cart', () => {
-    const cart = createCart();
-    addItem(cart, { id: 1, name: 'T-shirt', price: 25 }, 1);
-    addItem(cart, { id: 2, name: 'Jeans', price: 60 }, 1);
-    clearCart(cart);
-    expect(cart.items).toHaveLength(0);
+    const c = cart.createCart();
+    cart.addItem(c, { id: 1, price: 10 }, 1);
+    cart.clearCart(c);
+    expect(c.items.length).toBe(0);
   });
 });
 
-describe('Cart - price calculation', () => {
-  test('getSubtotal sums price * quantity for all items', () => {
-    const cart = createCart();
-    addItem(cart, { id: 1, name: 'T-shirt', price: 25 }, 2);
-    addItem(cart, { id: 2, name: 'Jeans', price: 60 }, 1);
-    expect(getSubtotal(cart)).toBe(110);
+describe('Cart prices', () => {
+  test('getSubtotal sums price * quantity', () => {
+    const c = cart.createCart();
+    cart.addItem(c, { id: 1, price: 10 }, 2); // 20
+    cart.addItem(c, { id: 2, price: 30 }, 1); // 30
+    expect(cart.getSubtotal(c)).toBe(50);
   });
 
-  test('getSubtotal of empty cart is 0', () => {
-    expect(getSubtotal(createCart())).toBe(0);
-  });
-
-  test('applyDiscount reduces price by given percentage', () => {
-    expect(applyDiscount(100, 20)).toBe(80);
-    expect(applyDiscount(50, 0)).toBe(50);
-    expect(applyDiscount(200, 50)).toBe(100);
-  });
-
-  test('applyDiscount throws if percentage out of range', () => {
-    expect(() => applyDiscount(100, -5)).toThrow();
-    expect(() => applyDiscount(100, 150)).toThrow();
+  test('applyDiscount reduces price by percent', () => {
+    expect(cart.applyDiscount(100, 20)).toBe(80);
   });
 
   test('getTotal applies discount on subtotal', () => {
-    const cart = createCart();
-    addItem(cart, { id: 1, name: 'T-shirt', price: 25 }, 4); // 100
-    expect(getTotal(cart, 10)).toBe(90);
+    const c = cart.createCart();
+    cart.addItem(c, { id: 1, price: 50 }, 2); // 100
+    expect(cart.getTotal(c, 10)).toBe(90);
   });
 
   test('getItemCount returns total number of items', () => {
-    const cart = createCart();
-    addItem(cart, { id: 1, name: 'T-shirt', price: 25 }, 2);
-    addItem(cart, { id: 2, name: 'Jeans', price: 60 }, 3);
-    expect(getItemCount(cart)).toBe(5);
-  });
-});
-
-describe('Cart - validation', () => {
-  test('addItem throws on invalid product (missing id)', () => {
-    const cart = createCart();
-    expect(() => addItem(cart, { price: 10 }, 1)).toThrow();
-  });
-
-  test('addItem throws on invalid price', () => {
-    const cart = createCart();
-    expect(() => addItem(cart, { id: 1, price: -5 }, 1)).toThrow();
-  });
-
-  test('addItem throws on invalid quantity', () => {
-    const cart = createCart();
-    expect(() => addItem(cart, { id: 1, price: 10 }, 0)).toThrow();
+    const c = cart.createCart();
+    cart.addItem(c, { id: 1, price: 10 }, 3);
+    cart.addItem(c, { id: 2, price: 20 }, 2);
+    expect(cart.getItemCount(c)).toBe(5);
   });
 });

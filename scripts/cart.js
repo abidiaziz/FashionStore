@@ -1,24 +1,15 @@
-/**
- * Cart module - testable cart logic for FashionStore.
- * Pure functions, no DOM access, so Jest can unit-test them.
- */
+// Cart functions for FashionStore.
+// Pure functions (no DOM) so we can test them with Jest.
 
 function createCart() {
   return { items: [] };
 }
 
-function addItem(cart, product, quantity = 1) {
-  if (!product || typeof product.id === 'undefined') {
-    throw new Error('Product must have an id');
-  }
-  if (typeof product.price !== 'number' || product.price < 0) {
-    throw new Error('Product must have a non-negative numeric price');
-  }
-  if (quantity <= 0) {
-    throw new Error('Quantity must be > 0');
-  }
+function addItem(cart, product, quantity) {
+  if (!quantity) quantity = 1;
 
-  const existing = cart.items.find((i) => i.id === product.id);
+  // If the product is already in the cart, just add to its quantity
+  const existing = cart.items.find(function (i) { return i.id === product.id; });
   if (existing) {
     existing.quantity += quantity;
   } else {
@@ -26,45 +17,48 @@ function addItem(cart, product, quantity = 1) {
       id: product.id,
       name: product.name || '',
       price: product.price,
-      quantity,
+      quantity: quantity
     });
   }
   return cart;
 }
 
 function removeItem(cart, productId) {
-  cart.items = cart.items.filter((i) => i.id !== productId);
+  cart.items = cart.items.filter(function (i) { return i.id !== productId; });
   return cart;
 }
 
 function updateQuantity(cart, productId, quantity) {
-  const item = cart.items.find((i) => i.id === productId);
+  const item = cart.items.find(function (i) { return i.id === productId; });
   if (!item) return cart;
-  if (quantity <= 0) {
-    return removeItem(cart, productId);
-  }
+  if (quantity <= 0) return removeItem(cart, productId);
   item.quantity = quantity;
   return cart;
 }
 
 function getSubtotal(cart) {
-  return cart.items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-}
-
-function applyDiscount(subtotal, discountPercent) {
-  if (discountPercent < 0 || discountPercent > 100) {
-    throw new Error('Discount must be between 0 and 100');
+  let total = 0;
+  for (let i = 0; i < cart.items.length; i++) {
+    total += cart.items[i].price * cart.items[i].quantity;
   }
-  return subtotal * (1 - discountPercent / 100);
+  return total;
 }
 
-function getTotal(cart, discountPercent = 0) {
-  const subtotal = getSubtotal(cart);
-  return applyDiscount(subtotal, discountPercent);
+function applyDiscount(subtotal, percent) {
+  return subtotal * (1 - percent / 100);
+}
+
+function getTotal(cart, percent) {
+  if (!percent) percent = 0;
+  return applyDiscount(getSubtotal(cart), percent);
 }
 
 function getItemCount(cart) {
-  return cart.items.reduce((sum, i) => sum + i.quantity, 0);
+  let count = 0;
+  for (let i = 0; i < cart.items.length; i++) {
+    count += cart.items[i].quantity;
+  }
+  return count;
 }
 
 function clearCart(cart) {
@@ -72,16 +66,18 @@ function clearCart(cart) {
   return cart;
 }
 
-if (typeof module !== 'undefined' && module.exports) {
+// Allow Jest (Node.js) to import these functions.
+// In the browser this block is skipped.
+if (typeof module !== 'undefined') {
   module.exports = {
-    createCart,
-    addItem,
-    removeItem,
-    updateQuantity,
-    getSubtotal,
-    applyDiscount,
-    getTotal,
-    getItemCount,
-    clearCart,
+    createCart: createCart,
+    addItem: addItem,
+    removeItem: removeItem,
+    updateQuantity: updateQuantity,
+    getSubtotal: getSubtotal,
+    applyDiscount: applyDiscount,
+    getTotal: getTotal,
+    getItemCount: getItemCount,
+    clearCart: clearCart
   };
 }
