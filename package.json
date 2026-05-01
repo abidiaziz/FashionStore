@@ -5,8 +5,8 @@
   "main": "index.html",
   "scripts": {
     "start": "npx http-server -p 8080 -c-1",
-    "lint": "npx eslint scripts/cart.js tests/",
-    "lint:fix": "npx eslint scripts/cart.js tests/ --fix",
+    "lint": "npx eslint scripts/cart.js scripts/cart-ui.js tests/",
+    "lint:fix": "npx eslint scripts/cart.js scripts/cart-ui.js tests/ --fix",
     "test": "npx jest --coverage",
     "test:watch": "npx jest --watch",
     "cypress:open": "npx cypress open",

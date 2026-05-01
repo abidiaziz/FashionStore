@@ -2,7 +2,7 @@
 // Self-contained — no external imports required.
 module.exports = [
   {
-    files: ['scripts/cart.js', 'tests/**/*.js'],
+    files: ['scripts/cart.js', 'scripts/cart-ui.js', 'tests/**/*.js'],
     languageOptions: {
       ecmaVersion: 2021,
       sourceType: 'commonjs',
@@ -19,6 +19,18 @@ module.exports = [
         // Browser
         window: 'readonly',
         document: 'readonly',
+        localStorage: 'readonly',
+        JSON: 'readonly',
+        // cart.js globals (used by cart-ui.js)
+        createCart: 'readonly',
+        addItem: 'readonly',
+        removeItem: 'readonly',
+        updateQuantity: 'readonly',
+        getSubtotal: 'readonly',
+        getTotal: 'readonly',
+        getItemCount: 'readonly',
+        applyDiscount: 'readonly',
+        clearCart: 'readonly',
         // Jest
         describe: 'readonly',
         test: 'readonly',
@@ -32,7 +44,7 @@ module.exports = [
       },
     },
     rules: {
-      'no-unused-vars': 'warn',
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
       'no-undef': 'error',
       'semi': ['error', 'always'],
       'quotes': ['warn', 'single', { avoidEscape: true }],

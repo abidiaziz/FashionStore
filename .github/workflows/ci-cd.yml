@@ -26,7 +26,7 @@ jobs:
         run: ls -la node_modules/.bin/ | grep -E "eslint|jest|cypress" || true
 
       - name: Run ESLint
-        run: ./node_modules/.bin/eslint scripts/cart.js tests/
+        run: ./node_modules/.bin/eslint scripts/cart.js scripts/cart-ui.js tests/
 
   # ─── 2. Unit tests (Jest) ───────────────────────────────────
   test-unit:
