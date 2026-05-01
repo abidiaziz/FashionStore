@@ -43,4 +43,11 @@ describe('FashionStore - Functional cart', () => {
     cy.reload();
     cy.get('#cart-menu .cart-item').should('have.length', 1);
   });
+
+  it('Featured Products on home page also work', () => {
+    cy.visit('/index.html');
+    cy.get('#featured-products .add-to-cart').first().click({ force: true });
+    cy.get('#cart-menu .cart-item').should('have.length', 1);
+    cy.get('#cart-menu .cart-item span').first().should('contain', 'Down Vest');
+  });
 });

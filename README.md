@@ -1,33 +1,33 @@
-# FashionStore E-commerce — DevOps Project
+# FashionStore E-commerce — Projet DevOps
 
-DevOps practices applied to an existing static e-commerce site:
-CI/CD, tests, Docker and monitoring.
+Mise en place de pratiques DevOps sur un site e-commerce statique existant :
+CI/CD, tests, Docker et monitoring.
 
-## Project structure
+## Structure du projet
 
 ```
 ecomerseSite/
-├── *.html                    static pages of the site
+├── *.html                    pages statiques du site
 ├── scripts/
-│   ├── cart.js               cart logic (added)
-│   ├── cart-ui.js            connects cart.js to the page (added)
-│   └── script*.js            original UI scripts
-├── styles/                   CSS files
+│   ├── cart.js               logique du panier (ajouté)
+│   ├── cart-ui.js            relie cart.js à la page (ajouté)
+│   └── script*.js            scripts UI d'origine
+├── styles/                   fichiers CSS
 ├── tests/
-│   └── cart.test.js          Jest unit tests
+│   └── cart.test.js          tests unitaires Jest
 ├── cypress/e2e/
-│   ├── navigation.cy.js      navigation tests
-│   └── cart.cy.js            cart tests
+│   ├── navigation.cy.js      tests de navigation
+│   └── cart.cy.js            tests du panier
 ├── monitoring/
-│   ├── prometheus.yml        Prometheus scrape config
-│   └── blackbox.yml          probe config
+│   ├── prometheus.yml        configuration Prometheus
+│   └── blackbox.yml          configuration des sondes
 ├── .github/workflows/
-│   └── ci-cd.yml             GitHub Actions pipeline
-├── Dockerfile                site image (nginx)
-└── docker-compose.yml        site + monitoring stack
+│   └── ci-cd.yml             pipeline GitHub Actions
+├── Dockerfile                image du site (nginx)
+└── docker-compose.yml        site + stack monitoring
 ```
 
-## Run locally
+## Lancer en local
 
 ```bash
 npm install
@@ -37,9 +37,9 @@ npm start                  # http://localhost:8080
 ## Tests
 
 ```bash
-npm test                   # Jest unit tests (9 tests)
+npm test                   # tests unitaires Jest (9 tests)
 npm run lint               # ESLint
-npm run cypress:run        # Cypress E2E tests (10 tests)
+npm run cypress:run        # tests E2E Cypress (10 tests)
 ```
 
 ## Docker
@@ -49,31 +49,45 @@ docker build -t fashionstore .
 docker run -p 8080:80 fashionstore
 ```
 
-Or with the full stack (site + monitoring):
+Ou avec la stack complète (site + monitoring) :
 
 ```bash
 docker-compose up -d
 ```
 
-Then open:
-- Site: http://localhost:8080
-- Prometheus: http://localhost:9090
-- Grafana: http://localhost:3000  (admin / admin)
+Puis ouvrir :
+- Site : http://localhost:8080
+- Prometheus : http://localhost:9090
+- Grafana : http://localhost:3000  (admin / admin)
 
 ## CI/CD
 
-The pipeline runs on every push to `main`:
+Le pipeline s'exécute à chaque push sur `main` (5 étapes) :
 
-1. Lint (ESLint)
-2. Unit tests (Jest)
-3. E2E tests (Cypress)
-4. Build Docker image
-5. Deploy to GitHub Pages
+1. **Lint** (ESLint)
+2. **Tests unitaires** (Jest)
+3. **Tests E2E** (Cypress)
+4. **Build Docker**
+5. **Déploiement** sur GitHub Pages
 
 ## Monitoring
 
-- **UptimeRobot** — external HTTP check on the deployed URL.
-- **Prometheus + Grafana** — local metrics stack via docker-compose,
-  using blackbox-exporter to probe the site.
+- **UptimeRobot** — surveillance externe via une requête HTTP sur l'URL déployée.
+- **Prometheus + Grafana** — stack locale via docker-compose,
+  utilise blackbox-exporter pour sonder le site.
 
-Indicators tracked: response time, availability, HTTP errors.
+Indicateurs surveillés : temps de réponse, disponibilité, erreurs HTTP.
+
+## Lien avec le cahier des charges
+
+| Section | Exigence | Réalisation |
+|---|---|---|
+| §3 | Planification (GitHub Projects) | tableau Kanban sur GitHub |
+| §4 | CI/CD (GitHub Actions) | `.github/workflows/ci-cd.yml` |
+| §5.1 | Tests unitaires (panier, prix) | `tests/cart.test.js` |
+| §5.2 | Tests d'intégration | `cypress/e2e/*.cy.js` |
+| §5.3 | Outils Jest, Cypress, ESLint | `package.json` |
+| §6.1 | Dockerfile + compose | `Dockerfile` + `docker-compose.yml` |
+| §6.2 | Déploiement cloud | GitHub Pages |
+| §7 | Monitoring | UptimeRobot + Prometheus/Grafana |
+| §8 | Documentation | ce README |
